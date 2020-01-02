@@ -1,0 +1,13 @@
+{% if user.is_authenticated %}
+
+{% include "header/user_auth.html" %}
+
+{% endif %}
+
+
+
+{% if not user.is_authenticated %}
+
+{% include "header/user_not_auth.html" %}
+
+{% endif %}

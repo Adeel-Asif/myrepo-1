@@ -1,0 +1,114 @@
+
+{% extends "base.html"%}
+
+
+{% block head %}
+<Style>
+
+input, label {
+    display:block;
+}
+
+</Style>
+
+{% endblock head %}
+
+
+{% block body %}
+  <h2>{{html_vars.add_user}}</h2>
+  <form method="post">
+    <table>
+      <tr>
+        
+        <td>
+          {{ form.first_name.label_tag }} 
+          {{ form.first_name }}
+          
+        </td>
+
+        <td>
+          {{ form.middle_name.label_tag }}
+          {{ form.middle_name }}
+        </td>
+
+        <td>
+          {{ form.last_name.label_tag }}
+          {{ form.last_name }}
+        </td>
+
+      </tr>
+      <tr>
+
+        <td>
+          {{ form.mobile_no.label_tag }}
+          {{ form.mobile_no }}
+          
+        </td>
+
+        <td>
+          {{ form.work_no.label_tag }}
+          {{ form.work_no }}
+        </td>
+
+        <td>
+          {{ form.other_no.label_tag }}
+          {{ form.other_no }}
+        </td>
+        
+      </tr>
+      <tr>
+        
+        <td>
+          {{ form.customer_email.label_tag }}
+          {{ form.customer_email }}    
+        </td>
+
+        <td>
+          {{ form.depart_date.label_tag }}
+          {{ form.depart_date }}    
+        </td>
+
+        <td>
+          {{ form.return_date.label_tag }}
+          {{ form.return_date }}    
+        </td>
+      
+      </tr>
+
+      <tr>
+
+      	<td>
+      	{{ form.booked.label_tag }}
+          {{ form.booked }}    
+      	</td>
+
+      	<td>
+      		  {{ form.remarks.label_tag }}
+          {{ form.remarks }}    
+      	</td>
+
+      </tr>
+    </table>
+
+
+    {% csrf_token %}
+
+<!--
+    {% for field in form %}
+      <p>
+        {{ field.label_tag }}<br>
+        {{ field }}
+        {% if field.help_text %}
+          <small style="color: grey">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+      </p>
+    
+    {% endfor %} -->
+    <button type="submit">{{html_vars.add_agaent_button}}</button>
+  </form>
+
+
+{% endblock body %}

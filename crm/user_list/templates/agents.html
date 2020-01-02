@@ -1,0 +1,162 @@
+{% extends "base.html"%}
+
+
+{%block head%} 
+
+<script>
+
+$(document).ready(function(){
+  $("#search_field").keyup(function(event) {
+  var query = $(this).val();
+  if (query=="")
+  {
+    $("tr#agent_list_row_search").remove();
+    $(".agent_list_row").show()
+  }
+});
+  });
+
+
+$(document).ready(function(){
+  $("#search_submit").click(function(e){
+
+        var input=$('#search_field').val();
+        $.post("search_agent/", 
+          {
+          'search_word': input, 
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+
+        function(data,status)
+        {
+          $("tr#agent_list_row_search").remove();
+          
+          $(".agent_list_row").hide()
+
+          var arrayLength = data.length;
+          for (var i = 0; i < arrayLength; i++) {
+
+          $(".agents_table").append('<tr id="agent_list_row_search">'+
+            '<td>'+data[i]['id']+'</td>'+
+              '<td>'+data[i]['username']+'</td>'+
+              '<td>'+ data[i]['first_name']  +'</td>'+
+              
+              '<td>'+ data[i]['last_name']  +'</td>'+ 
+
+              '<td>'+ data[i]['number']  +'</td>'+
+              '<td>'+ data[i]['birth_date']  +'</td>'+
+
+              {% if request.user.is_superuser %}
+              '<td>'+'<button id="'+data[i]['id']+'" class="delete_agent_button" onClick=>{{html_vars.delete}}</button></td>'
+              {%endif%}
+              +
+              '</tr>'
+
+              )
+          
+
+          }
+      
+      });  
+    
+  });
+});
+
+</script>
+
+
+<script>
+$(document).ready(function(){
+  $('body').on('click', '.delete_agent_button', function(e) {
+  
+    if (!confirm("Do you want to delete")){
+      return false;}
+
+  $.post("delete_agent/", 
+          {
+            'id':e.target.id,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+
+        function(data,status){
+
+      });  
+    
+    $("#"+e.target.id).hide();
+  });
+});
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+</style>
+
+{% endblock head %}
+
+
+{% block body %}
+
+<input type="text" placeholder="Search.." name="search" id="search_field">
+<button class="fa fa-search" id="search_submit"></button>
+
+<table style="width:100%" class="agents_table">
+  <tr style="text-align: left;">
+
+     
+    <th>{{html_vars.id}}</th>
+
+    <th>{{html_vars.username}}</th>
+    
+    <th>{{html_vars.firstname}}</th>
+    <th>{{html_vars.lastname}}</th> 
+
+    <th>{{html_vars.number}}</th>
+
+    <th>{{html_vars.birth_date}}</th>
+
+  </tr>
+{% for post in agent_list%}
+  
+  <tr id="{{ post.id }}" class="agent_list_row">
+   
+    <td>{{ post.id}}</td>
+
+    <td>{{ post.username}}</td>
+    
+    <td>{{ post.first_name }}</td>
+    <td>{{ post.last_name }}</td>
+
+    <td>{{ post.profile.number}}</td>
+    <td>{{ post.profile.birth_date }}</td>
+   
+
+    <td><button class="delete_agent_button" id="{{ post.id }}"  >{{html_vars.delete}}</button></td>
+    
+    
+  </tr>
+
+    
+{%endfor%}
+
+<tr  id="agent_list_row_search">
+  
+</tr>
+
+</table>
+
+
+
+{% endblock body %}

@@ -1,0 +1,247 @@
+{% extends "base.html"%}
+ 
+{%block head%} 
+
+<script>
+
+$(document).ready(function(){
+  $("#search_field").keyup(function(event) {
+  var query = $(this).val();
+  if (query=="")
+  {
+    $("tr#customer_list_row_search").remove();
+    $(".customer_list_row").show()
+  }
+});
+  });
+
+ 
+$(document).ready(function(){
+  $("#search_submit").click(function(e){
+
+        var input=$('#search_field').val();
+        $.post("search_home/", 
+          {
+          'search_word': input, 
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+
+        function(data,status)
+        {
+          $("tr#customer_list_row_search").remove();
+          
+          $(".customer_list_row").hide()
+
+          var arrayLength = data.length;
+          for (var i = 0; i < arrayLength; i++) {
+
+          $("#customers_table").append('<tr id="customer_list_row_search">'+
+            {% if request.user.is_superuser %}
+            '<td>'+data[i]['agent_id']+'</td>'+
+            {% endif %}
+              '<td>'+data[i]['id']+'</td>'+
+              '<td>'+ data[i]['first_name']  +'</td>'+
+              '<td>'+ data[i]['middle_name']  +'</td>'+
+              '<td>'+ data[i]['last_name']  +'</td>'+ 
+
+              '<td>'+ data[i]['mobile_no']  +'</td>'+
+              '<td>'+ data[i]['work_no']  +'</td>'+
+              '<td>'+ data[i]['other_no']  +'</td>'+
+
+              '<td>'+ data[i]['customer_email']  +'</td>'+
+              '<td>'+ data[i]['depart_date']  +'</td>'+
+              '<td>'+ data[i]['return_date']  +'</td>'+
+
+              '<td>'+ data[i]['remarks']  +'</td>'+
+              '<td>'+ data[i]['published_date']  +'</td>'+
+
+              {% if request.user.is_superuser %}
+              '<td>'+'<button id="'+data[i]['id']+'" class="delete_entry_button">{{html_vars.delete}}</button></td>'
+              {%endif%}
+              +
+              '</tr>'
+
+              )
+          
+
+          }
+      
+      });  
+    
+  });
+});
+
+
+</script>
+
+
+<script>
+$(document).ready(function(){
+//  $(".delete_entry_button").click(function(e){
+$('body').on('click', '.delete_entry_button', function(e) {  
+    if (!confirm("Do you want to delete")){
+      return false;}
+
+  $.post("delete_entry/", 
+          {
+            
+            'id':e.target.id,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+          },
+
+        function(data,status){
+    $("#"+e.target.id).hide();
+      });  
+    
+
+  });
+});
+
+</script>
+
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+
+
+
+a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+}
+
+a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.round {
+  float: right;
+  border-radius: 50%;
+}
+
+
+</style>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+{% endblock head %}
+
+
+{% block body %}
+
+
+{% if user.is_authenticated %}
+
+
+
+
+  <input type="text" placeholder="Search.." name="search" id="search_field">
+  <button class="fa fa-search" id="search_submit"></button>
+  
+  <a href="{% url 'home_page' id=page_id.next_id %}" class="next round">&#8250;</a>
+  <a href="{% url 'home_page' id=page_id.pre_id %}" class="previous round">&#8249;</a>
+
+
+
+
+<div style="margin: 0 auto;">
+<table style="width:100%" id="customers_table">
+  <tr style="text-align: left;" class="customer_list_headings">
+
+    {% if request.user.is_superuser %}
+    <th>{{html_vars.agent}}</th> 
+    {%endif%}
+    <th>{{html_vars.id}}</th>
+    
+    <th>{{html_vars.firstname}}</th>
+    <th>{{html_vars.middlename}}</th>
+    <th>{{html_vars.lastname}}</th> 
+
+    <th>{{html_vars.mobile_no}}</th>
+    <th>{{html_vars.work_no}}</th>
+    <th>{{html_vars.other_no}}</th>
+
+    <th>{{html_vars.email}}</th>
+    <th>{{html_vars.depart_date}}</th>
+    <th>{{html_vars.return_date}}</th>
+
+    <th>{{html_vars.remarks}}</th>
+    <th>{{html_vars.booked}}</th>
+    <th>{{html_vars.date}}</th>
+  
+  </tr>
+{% for post in objectlist%}
+  
+  <tr id="{{ post.id }}" class="customer_list_row">
+    {% if request.user.is_superuser %}
+    <td>{{ post.agent_id }}</td>
+    {%endif%}
+    <td>{{ post.id }}</td>
+    
+    <td>{{ post.first_name }}</td>
+    <td>{{ post.middle_name }}</td>
+    <td>{{ post.last_name }}</td>
+
+    <td>{{ post.mobile_no }}</td>
+    <td>{{ post.work_no }}</td>
+    <td>{{ post.other_no }}</td>
+
+    <td>{{ post.customer_email }}</td>
+    <td>{{ post.depart_date }}</td>
+    <td>{{ post.return_date }}</td>
+
+    <td>{{ post.remarks }}</td>
+    {% if post.booked == 2 %}
+    <td>Yes</td>
+    {%endif%}
+    {% if post.booked != 2 %}
+    <td>No</td>
+    {%endif%}
+    <td>{{ post.published_date }}</td>
+
+    {% if request.user.is_superuser %}
+    <td><button id="{{ post.id }}" class="delete_entry_button">{{html_vars.delete}}</button></td>
+    
+    
+
+    {%endif%}
+  </tr>
+  
+    
+{%endfor%}
+
+
+<tr  id="customer_list_row_search">
+  
+</tr>
+
+</table>
+{%endif%}
+
+</div>
+
+
+
+{% endblock body %}
